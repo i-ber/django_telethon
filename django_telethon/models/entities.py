@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import now
 
 
 class Entity(models.Model):
@@ -36,7 +37,7 @@ class Entity(models.Model):
         verbose_name=_('Name'),
     )
     date = models.DateTimeField(
-        auto_now_add=True,
+        default=now,
         verbose_name=_('Date'),
     )
 

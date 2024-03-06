@@ -63,7 +63,7 @@ class Login(models.Model):
         verbose_name=_('Hash code'),
     )
     created_at = models.DateTimeField(
-        auto_now_add=True,
+        default=now,
         verbose_name=_('Created at'),
     )
 
