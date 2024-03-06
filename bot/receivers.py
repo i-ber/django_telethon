@@ -5,18 +5,24 @@ from telethon import events
 
 from django_telethon.signals import telegram_client_registered
 
+async def botpress_responce(event, client_session):
+    session_name = client_session.name
+    msg_text = event.raw_text
+    username = event.sender.username
+    user_id = event.chat_id
+    #phone = event.sender.phone
+    #first_name = event.sender.first_name
+    #last_name = event.sender.last_name
 
-async def event_handler(event, client_session):
-    print(client_session.name, event.raw_text, sep=' | ')
-    await event.respond('!pong')
-    # if you need access to telegram client, you can use event.client
-    # await event.client.send_message("me", "Пришло сообщение '" + event.raw_text + "' от " + str(event.chat_id))
-
+    print(session_name, user_id, msg_text, sep =' | ')
+    if username == "i_berdnikov":
+        async with event.client.conversation(user_id) as conv:
+            await conv.send_message(f'Привет, я бот "{session_name}"')
 
 @receiver(telegram_client_registered)
 def receiver_telegram_client_registered(telegram_client, client_session, *args, **kwargs):
-    handler = partial(event_handler, client_session=client_session)
+    handler = partial(botpress_responce, client_session=client_session)
     telegram_client.add_event_handler(
         handler,
-        events.NewMessage(incoming=True, pattern='ping'),
+        events.NewMessage,
     )
