@@ -12,26 +12,25 @@ from bot.models import NewDialogs
 
 async def botpress_responce(event, client_session):
     session_name = client_session.name
+    # сессию нужно назвать так же как бота чтобы связать их в формате "{bot_id}_n"
+    bot_id = session_name.split('_')[0]
+    # sender = await event.get_sender()
+    # username = sender.username
+    # phone = sender.phone
+    # first_name = sender.first_name
+    # last_name = sender.last_name
+    # if sender.username and sender.username == "i_berdnikov":
 
-    sender = await event.get_sender()
     msg_text = event.raw_text
     user_id = event.chat_id
-    bot_id = "test1"  # в будущем сессия будет связана с именем отеля - так будем определять с кем общаться
-
-    #username = sender.username
-    #phone = sender.phone
-    #first_name = sender.first_name
-    #last_name = sender.last_name
-
-    print(session_name, user_id, msg_text, sep =' | ')
-    if sender.username and sender.username == "i_berdnikov":
-        response = await Botpress.send_message(bot_id, user_id, msg_text)
-        for obj in response:
-            if obj['type'] == 'card':
-                caption = f"*{obj['title']}*\n{obj['subtitle']}"
-                await event.client.send_file(user_id, obj['image'], caption=caption)
-            if obj['type'] == 'text':
-                await event.client.send_message(user_id, obj['text'])
+    print(session_name, user_id, msg_text, sep=' | ')
+    response = await Botpress.send_message(bot_id, user_id, msg_text)
+    for obj in response:
+        if obj['type'] == 'card':
+            caption = f"*{obj['title']}*\n{obj['subtitle']}"
+            await event.client.send_file(user_id, obj['image'], caption=caption)
+        if obj['type'] == 'text':
+            await event.client.send_message(user_id, obj['text'])
 
         #async with event.client.conversation(user_id) as conv:
         #    await conv.send_message(f'Привет, я бот "{session_name}"')
@@ -55,7 +54,7 @@ def receiver_telegram_client_registered(telegram_client, client_session, *args, 
     handler = partial(botpress_responce, client_session=client_session)
     telegram_client.add_event_handler(
         handler,
-        events.NewMessage,
+        events.NewMessage(incoming=True, func=lambda e: e.is_private)
     )
 
     # Запускаем асинхронную задачу из синхронного контекста

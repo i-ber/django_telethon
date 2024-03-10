@@ -13,7 +13,7 @@ class Botpress:
     _pass = os.environ["BOTPRESS_PASS"]
     _headers = {"Content-Type": "application/json"}
     # Принудительно устаревший токен
-    _last_jwt_update = datetime.datetime.now() - datetime.timedelta(minutes=5)
+    _last_jwt_update = datetime.datetime.now() - datetime.timedelta(minutes=120)
 
     @classmethod
     async def auth(cls):
@@ -45,4 +45,5 @@ class Botpress:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data, headers=cls._headers) as response:
                 res = await response.json()
+                print(res)
                 return res['responses']
