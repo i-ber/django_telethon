@@ -26,8 +26,12 @@ async def botpress_responce(event, client_session):
     print(session_name, user_id, msg_text, sep =' | ')
     if sender.username and sender.username == "i_berdnikov":
         response = await Botpress.send_message(bot_id, user_id, msg_text)
-        for message in response:
-            await event.client.send_message(user_id, message)
+        for obj in response:
+            if obj['type'] == 'card':
+                caption = f"*{obj['title']}*\n{obj['subtitle']}"
+                await event.client.send_file(user_id, obj['image'], caption=caption)
+            if obj['type'] == 'text':
+                await event.client.send_message(user_id, obj['text'])
 
         #async with event.client.conversation(user_id) as conv:
         #    await conv.send_message(f'Привет, я бот "{session_name}"')

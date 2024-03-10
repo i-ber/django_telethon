@@ -29,7 +29,7 @@ class Botpress:
 
     @classmethod
     async def token_update(cls):
-        if datetime.datetime.now() - cls._last_jwt_update > datetime.timedelta(minutes=2):
+        if datetime.datetime.now() - cls._last_jwt_update > datetime.timedelta(minutes=30):
             await cls.auth()
 
     @classmethod
@@ -45,6 +45,4 @@ class Botpress:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data, headers=cls._headers) as response:
                 res = await response.json()
-                messages = [mes['text'] for mes in res['responses']]
-                print(messages)
-                return messages
+                return res['responses']
