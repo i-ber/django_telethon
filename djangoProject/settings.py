@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -89,11 +90,11 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'iber',
-        'USER': 'iber',
-        'PASSWORD': 'ber34',
-        'HOST': 'localhost',
-        'PORT': 5432,
+        'NAME': os.environ["POSTGRES_DB"],
+        'USER': os.environ["POSTGRES_USER"],
+        'PASSWORD': os.environ["POSTGRES_PASSWORD"],
+        'HOST': os.environ["POSTGRES_HOST"],
+        'PORT': os.environ["PGPORT"],
     }
 }
 
@@ -119,7 +120,9 @@ BOTPRESS = {
     "ROOT_URL": "http://localhost:3000",
     "LOGIN_ROUTE": "/api/v1/auth/login/basic/default",
     "MSG_ROUTE": lambda bot_id, user_id:
-        f"/api/v1/bots/{bot_id}/converse/{user_id}/secured?include=nlu,state,suggestions,decision"
+        f"/api/v1/bots/{bot_id}/converse/{user_id}/secured?include=nlu,state,suggestions,decision",
+    "BOTPRESS_EMAIL": os.environ["BOTPRESS_EMAIL"],
+    "BOTPRESS_PASS": os.environ["BOTPRESS_PASS"]
 }
 
 # Internationalization

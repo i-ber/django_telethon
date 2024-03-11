@@ -25,6 +25,8 @@ async def botpress_responce(event, client_session):
     user_id = event.chat_id
     print(session_name, user_id, msg_text, sep=' | ')
     response = await Botpress.send_message(bot_id, user_id, msg_text)
+    if not response:
+        return
     for obj in response:
         if obj['type'] == 'card':
             caption = f"*{obj['title']}*\n{obj['subtitle']}"

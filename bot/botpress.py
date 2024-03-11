@@ -1,4 +1,3 @@
-import os
 import datetime
 
 from django.conf import settings
@@ -9,8 +8,8 @@ class Botpress:
     _root_url = settings.BOTPRESS['ROOT_URL']
     _login_route = settings.BOTPRESS['LOGIN_ROUTE']
     _msg_route = settings.BOTPRESS['MSG_ROUTE'] # bot_id, user_id
-    _email = os.environ["BOTPRESS_EMAIL"]
-    _pass = os.environ["BOTPRESS_PASS"]
+    _email = settings.BOTPRESS['BOTPRESS_EMAIL']
+    _pass = settings.BOTPRESS['BOTPRESS_PASS']
     _headers = {"Content-Type": "application/json"}
     # Принудительно устаревший токен
     _last_jwt_update = datetime.datetime.now() - datetime.timedelta(minutes=120)
@@ -22,10 +21,14 @@ class Botpress:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data, headers=cls._headers) as response:
-                res = await response.json()
-                print(res)
-                jwt_token = res['payload']['jwt']
-                cls._headers['Authorization'] = f"Bearer {jwt_token}"
+                if response.status == 200:
+                    res = await response.json()
+                    print(res)
+                    jwt_token = res['payload']['jwt']
+                    cls._headers['Authorization'] = f"Bearer {jwt_token}"
+                else:
+                    print(f"Botpress auth error. Response status: {response.status}")
+                    print(f"Error text: {response.text}")
 
     @classmethod
     async def token_update(cls):
@@ -44,6 +47,10 @@ class Botpress:
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data, headers=cls._headers) as response:
-                res = await response.json()
-                print(res)
-                return res['responses']
+                if response.status == 200:
+                    res = await response.json()
+                    print(res)
+                    return res['responses']
+                else:
+                    print(f"Botpress send message error. Response status: {response.status}")
+                    print(f"Error text: {response.text}")
