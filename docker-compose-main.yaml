@@ -75,6 +75,10 @@ services:
       - 3100
     volumes:
       - botpressdata:/botpress/data/embeddings
+    deploy:
+      resources:
+        limits:
+          memory: 5G
 
   duckling:
     image: duckling_ru
