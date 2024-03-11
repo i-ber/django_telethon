@@ -70,7 +70,7 @@ services:
 
   botpress_lang:
     image: botpress/server
-    command: bash -c "./bp lang --offline --dim 300 --langDir /botpress/data/embeddings --port 3100"
+    command: bash -c "./bp lang --offline --dim 100 --langDir /botpress/data/embeddings --port 3100"
     expose:
       - 3100
     volumes:
