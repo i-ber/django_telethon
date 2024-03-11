@@ -117,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 BOTPRESS = {
-    "ROOT_URL": "http://localhost:3000",
+    "ROOT_URL": os.environ["BOTPRESS_URL"], # "http://localhost:3000",
     "LOGIN_ROUTE": "/api/v1/auth/login/basic/default",
     "MSG_ROUTE": lambda bot_id, user_id:
         f"/api/v1/bots/{bot_id}/converse/{user_id}/secured?include=nlu,state,suggestions,decision",
