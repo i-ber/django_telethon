@@ -1,0 +1,9 @@
+tunnels:
+  botpress:
+    proto: http
+    addr: 3000
+    host_header: localhost
+  django:
+    proto: http
+    addr: 8080
+    host_header: localhost
