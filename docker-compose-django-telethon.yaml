@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  django-admin:
+    image: django_telethon
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    environment:
+      - BOTPRESS_EMAIL=admin # после регистрации в botpress обновить: export BOTPRESS_EMAIL=...
+      - BOTPRESS_PASS=admin  # после регистрации в botpress обновить: export BOTPRESS_PASS=...
+      - BOTPRESS_URL=http://botpress:3000
+      - POSTGRES_DB=django_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secretpw
+      - POSTGRES_HOST=postgres
+      - PGPORT=5435
+      - DJANGO_SUPERUSER_USERNAME=admin # после запуска сменить: python manage.py createsuperuser
+      - DJANGO_SUPERUSER_EMAIL=admin@admin.com
+      - DJANGO_SUPERUSER_PASSWORD=admin
+    depends_on:
+      - postgres
+      - botpress
+    volumes:
+      - ./:/app
+    command: sh -c "python manage.py migrate &&
+                    python manage.py createsuperuser --noinput &&
+                    python manage.py runserver 0.0.0.0:8080"
+
+  django-telegram:
+    image: django_telethon
+    environment:
+      - BOTPRESS_EMAIL=admin # после регистрации в botpress обновить: export BOTPRESS_EMAIL=...
+      - BOTPRESS_PASS=admin  # после регистрации в botpress обновить: export BOTPRESS_PASS=...
+      - BOTPRESS_URL=http://botpress:3000
+      - POSTGRES_DB=django_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secretpw
+      - POSTGRES_HOST=postgres
+      - PGPORT=5435
+    depends_on:
+      - postgres
+      - botpress
+    volumes:
+      - ./:/app
+    command: sh -c "python manage.py runtelegram"
+
+  postgres:
+    image: postgres:14-alpine
+    expose:
+      - 5435
+    environment:
+      PGPORT: 5435
+      #POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

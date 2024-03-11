@@ -1,0 +1,98 @@
+version: '3'
+
+services:
+  django-admin:
+    image: django_telethon
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    environment:
+      - BOTPRESS_EMAIL=admin # email для входа в botpress
+      - BOTPRESS_PASS=admin  # пароль для входа в botpress
+      - BOTPRESS_URL=http://botpress:3000
+      - POSTGRES_DB=botpress_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secretpw
+      - POSTGRES_HOST=postgres
+      - PGPORT=5435
+      - DJANGO_SUPERUSER_USERNAME=admin # имя пользователя для django
+      - DJANGO_SUPERUSER_EMAIL=admin@admin.com # email для django
+      - DJANGO_SUPERUSER_PASSWORD=admin # пароль для django
+    depends_on:
+      - postgres
+      - botpress
+    volumes:
+      - ./:/app
+    command: sh -c "python manage.py migrate &&
+                    python manage.py createsuperuser --noinput &&
+                    python manage.py runserver 0.0.0.0:8080"
+
+  django-telegram:
+    image: django_telethon
+    environment:
+      - BOTPRESS_EMAIL=admin # email для входа в botpress
+      - BOTPRESS_PASS=admin  # пароль для входа в botpress
+      - BOTPRESS_URL=http://botpress:3000
+      - POSTGRES_DB=botpress_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secretpw
+      - POSTGRES_HOST=postgres
+      - PGPORT=5435
+    depends_on:
+      - postgres
+      - botpress
+    volumes:
+      - ./:/app
+    command: sh -c "python manage.py runtelegram"
+
+  botpress:
+    image: botpress/server
+    command: /botpress/bp
+    expose:
+      - 3000
+    environment:
+      - BP_MODULE_NLU_DUCKLINGURL=http://duckling:8000
+      - BP_MODULE_NLU_LANGUAGESOURCES=[{"endpoint":"http://botpress_lang:3100"}]
+      - BP_PRODUCTION=true
+      - BPFS_STORAGE=database
+      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+    depends_on:
+      - botpress_lang
+      - duckling
+      - postgres
+    volumes:
+      - botpressdata:/botpress/data
+    ports:
+      - "3000:3000"
+
+  botpress_lang:
+    image: botpress/server
+    command: bash -c "./bp lang --offline --dim 300 --langDir /botpress/data/embeddings --port 3100"
+    expose:
+      - 3100
+    volumes:
+      - botpressdata:/botpress/data/embeddings
+
+  duckling:
+    image: duckling_ru
+    command: bash -c "duckling-example-exe -p 8000"
+    expose:
+      - 8000
+
+  postgres:
+    image: postgres:14-alpine
+    expose:
+      - 5435
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
+volumes:
+  pgdata:
+  botpressdata:
