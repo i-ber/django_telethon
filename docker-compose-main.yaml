@@ -11,6 +11,7 @@ services:
       - BOTPRESS_EMAIL=admin # email для входа в botpress
       - BOTPRESS_PASS=admin  # пароль для входа в botpress
       - BOTPRESS_URL=http://botpress:3000
+      - HOST_IP=89.23.112.129
       - POSTGRES_DB=botpress_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=secretpw
@@ -34,6 +35,7 @@ services:
       - BOTPRESS_EMAIL=admin # email для входа в botpress
       - BOTPRESS_PASS=admin  # пароль для входа в botpress
       - BOTPRESS_URL=http://botpress:3000
+      - HOST_IP=89.23.112.129
       - POSTGRES_DB=botpress_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=secretpw
