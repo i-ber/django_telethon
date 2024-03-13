@@ -1,3 +1,6 @@
+version: "2"
+authtoken: вставить на сервере через nano
+
 tunnels:
   botpress:
     proto: http

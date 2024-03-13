@@ -25,6 +25,7 @@ class Botpress:
                     res = await response.json()
                     print(res)
                     jwt_token = res['payload']['jwt']
+                    cls._last_jwt_update = datetime.datetime.now()
                     cls._headers['Authorization'] = f"Bearer {jwt_token}"
                 else:
                     print(f"Botpress auth error. Response status: {response.status}")
