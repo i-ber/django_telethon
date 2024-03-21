@@ -47,7 +47,8 @@ async def send_code_request(client_session, phone_number):
 
 
 async def connect_client(client_app, app):
-    telegram_client = TelegramClient(DjangoSession(client_session=client_app), app.api_id, app.api_hash)
+    telegram_client = TelegramClient(DjangoSession(client_session=client_app),
+                                     app.api_id, app.api_hash, connection_retries=None)
     await telegram_client.connect()
     if not await telegram_client.is_user_authorized():
         client_app.login_status = LoginStatus.LOGIN_REQUIRED
