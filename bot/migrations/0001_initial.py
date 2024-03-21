@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("django_telethon", "0002_alter_entity_date_alter_login_created_at"),
+        ("django_telethon", "0001_initial"),
     ]
 
     operations = [
