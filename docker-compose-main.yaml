@@ -8,18 +8,18 @@ services:
     expose:
       - 8080
     environment:
-      - BOTPRESS_EMAIL=admin # email для входа в botpress
-      - BOTPRESS_PASS=admin  # пароль для входа в botpress
-      - BOTPRESS_URL=http://botpress:3000
-      - HOST_IP=89.23.112.129
-      - POSTGRES_DB=botpress_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=secretpw
-      - POSTGRES_HOST=postgres
-      - PGPORT=5435
-      - DJANGO_SUPERUSER_USERNAME=admin # имя пользователя для django
-      - DJANGO_SUPERUSER_EMAIL=admin@admin.com # email для django
-      - DJANGO_SUPERUSER_PASSWORD=admin # пароль для django
+      BOTPRESS_EMAIL: admin # email для входа в botpress
+      BOTPRESS_PASS: ${BOTPRESS_PASS}  # пароль для входа в botpress
+      BOTPRESS_URL: http://botpress:3000
+      HOST_IP: ${HOST_IP}
+      POSTGRES_DB: botpress_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_HOST: postgres
+      PGPORT: 5435
+      DJANGO_SUPERUSER_USERNAME: admin # имя пользователя для django
+      DJANGO_SUPERUSER_EMAIL: admin@admin.com # email для django
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD} # пароль для django
     depends_on:
       - postgres
       - botpress
@@ -32,15 +32,15 @@ services:
   django-telegram:
     image: django_telethon
     environment:
-      - BOTPRESS_EMAIL=admin # email для входа в botpress
-      - BOTPRESS_PASS=admin  # пароль для входа в botpress
-      - BOTPRESS_URL=http://botpress:3000
-      - HOST_IP=89.23.112.129
-      - POSTGRES_DB=botpress_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=secretpw
-      - POSTGRES_HOST=postgres
-      - PGPORT=5435
+      BOTPRESS_EMAIL: admin # email для входа в botpress
+      BOTPRESS_PASS: ${BOTPRESS_PASS}  # пароль для входа в botpress
+      BOTPRESS_URL: http://botpress:3000
+      HOST_IP: ${HOST_IP}
+      POSTGRES_DB: botpress_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_HOST: postgres
+      PGPORT: 5435
     depends_on:
       - postgres
       - botpress
@@ -54,11 +54,11 @@ services:
     expose:
       - 3000
     environment:
-      - BP_MODULE_NLU_DUCKLINGURL=http://duckling:8000
-      - BP_MODULE_NLU_LANGUAGESOURCES=[{"endpoint":"http://botpress_lang:3100"}]
-      - BP_PRODUCTION=true
-      - BPFS_STORAGE=database
-      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+      BP_MODULE_NLU_DUCKLINGURL: "http://duckling:8000"
+      BP_MODULE_NLU_LANGUAGESOURCES: '[{"endpoint":"http://botpress_lang:3100"}]'
+      BP_PRODUCTION: true
+      BPFS_STORAGE: database
+      DATABASE_URL: "postgres://postgres:secretpw@postgres:5435/botpress_db"
     depends_on:
       - botpress_lang
       - duckling
@@ -98,7 +98,39 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  ya_gpt:
+    image: ya_gpt
+    command: /bin/sh -c "exec uvicorn app.server:app --host 0.0.0.0 --port 8050"
+    expose:
+      - 8050
+    environment:
+      YA_API_KEY: ${YA_API_KEY}
+      YA_FOLDER_ID: ${YA_FOLDER_ID}
+      CHROMA_AUTH_TOKEN: ${CHROMA_SERVER_AUTH_CREDENTIALS}
+      CHROMADB_HOST: chromadb
+      CHROMADB_PORT: 5300
+    depends_on:
+      - chromadb
+    #ports:
+    #  - "8050:8050"
+
+  chromadb:
+    image: chromadb/chroma
+    expose:
+      - 5300
+    command: "--workers 1 --host 0.0.0.0 --port 5300 --proxy-headers --log-config chromadb/log_config.yml --timeout-keep-alive 30"
+    environment:
+      IS_PERSISTENT: TRUE
+      CHROMA_SERVER_AUTH_CREDENTIALS: ${CHROMA_SERVER_AUTH_CREDENTIALS}
+      CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER: "chromadb.auth.token.TokenConfigServerAuthCredentialsProvider"
+      CHROMA_SERVER_AUTH_PROVIDER: "chromadb.auth.token.TokenAuthServerProvider"
+    volumes:
+      - chroma-data:/chroma/chroma/
+    ports:
+      - "5300:5300"
 
 volumes:
   pgdata:
   botpressdata:
+  chroma-data:
+    driver: local
