@@ -114,6 +114,23 @@ services:
     #ports:
     #  - "8050:8050"
 
+  chroma_admin:
+    image: chroma_admin
+    command: /bin/sh -c "exec streamlit run app/server.py --server.address 0.0.0.0 --server.port 5030"
+    expose:
+      - 5030
+    environment:
+      YA_API_KEY: ${YA_API_KEY}
+      YA_FOLDER_ID: ${YA_FOLDER_ID}
+      CHROMA_ADMIN_PASS: ${CHROMA_ADMIN_PASS}
+      CHROMA_AUTH_TOKEN: ${CHROMA_SERVER_AUTH_CREDENTIALS}
+      CHROMADB_HOST: chromadb
+      CHROMADB_PORT: 5300
+    depends_on:
+      - chromadb
+    ports:
+      - "5030:5030"
+
   chromadb:
     image: chromadb/chroma
     expose:
@@ -126,8 +143,8 @@ services:
       CHROMA_SERVER_AUTH_PROVIDER: "chromadb.auth.token.TokenAuthServerProvider"
     volumes:
       - chroma-data:/chroma/chroma/
-    ports:
-      - "5300:5300"
+    #ports:
+    #  - "5300:5300"
 
 volumes:
   pgdata:
