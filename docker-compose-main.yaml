@@ -14,7 +14,7 @@ services:
       HOST_IP: ${HOST_IP}
       POSTGRES_DB: botpress_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secretpw
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_HOST: postgres
       PGPORT: 5435
       DJANGO_SUPERUSER_USERNAME: admin # имя пользователя для django
@@ -38,7 +38,7 @@ services:
       HOST_IP: ${HOST_IP}
       POSTGRES_DB: botpress_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secretpw
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_HOST: postgres
       PGPORT: 5435
     depends_on:
@@ -58,7 +58,7 @@ services:
       BP_MODULE_NLU_LANGUAGESOURCES: '[{"endpoint":"http://botpress_lang:3100"}]'
       BP_PRODUCTION: true
       BPFS_STORAGE: database
-      DATABASE_URL: "postgres://postgres:secretpw@postgres:5435/botpress_db"
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASS}@postgres:5435/botpress_db"
     depends_on:
       - botpress_lang
       - duckling
@@ -88,12 +88,14 @@ services:
 
   postgres:
     image: postgres:14-alpine
+    ports:
+      - "5435:5435"
     expose:
       - 5435
     environment:
       PGPORT: 5435
       POSTGRES_DB: botpress_db
-      POSTGRES_PASSWORD: secretpw
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_USER: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
